@@ -1,0 +1,141 @@
+body {
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+h3 {
+	vertical-align: top;
+	margin-top:15px!important;
+	margin-right:15px!important;
+	/*float:left;*/
+	display:inline-block;
+}
+
+.alert {
+	border-bottom: gray solid 1px;
+	display:block;
+}
+
+.arc text {
+	text-anchor: middle;
+}
+.arc path {
+	stroke: #fff;
+}
+.area {
+	fill: rgba(46,117,181,.5);
+	stroke:rgb(46,117,181);
+}
+.content {
+	width:85%;
+	width:85%;
+	margin:auto auto;
+}
+
+.errorColor {
+	color: #D97777;
+	font-weight:bold;
+}
+.warningColor {
+	color: #D9C977;
+	font-weight:bold;
+}
+
+.goodColor {
+	color: #69B261;
+	font-weight:bold;
+}
+
+.completed {
+	color: #69B261;
+}
+
+.important {
+	font-weight: bold;
+}
+
+.rightAlign {
+	text-align:right;
+}
+.tableCell {
+	padding-bottom:15px;
+}
+
+td,th {
+	padding-left:10px;
+	padding-right:10px;
+}
+
+.focus circle {
+	fill: red;
+	stroke: red;
+}
+.overlay {
+	fill: none;
+	pointer-events: all;
+}
+.divTooltip {
+	position: absolute;
+	width: 200px;
+	height: auto;
+	padding: 10px;
+	background-color: white;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	-webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+	-moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+	box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+	pointer-events: none;
+}
+.d3-tip {
+	line-height: 1;
+	font-weight: bold;
+	padding: 12px;
+	background: rgba(0, 0, 0, 0.8);
+	color: #fff;
+	border-radius: 2px;
+}
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+	box-sizing: border-box;
+	display: inline;
+	font-size: 10px;
+	width: 100%;
+	line-height: 1;
+	color: rgba(0, 0, 0, 0.8);
+	content: "\25BC";
+	position: absolute;
+	text-align: center;
+}
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+	margin: -1px 0 0 0;
+	top: 100%;
+	left: 0;
+}
+.svg-container {
+	display: inline-block;
+	position: relative;
+	width: 100%;
+	padding-bottom: 100%; /* aspect ratio */
+	vertical-align: top;
+	overflow: hidden;
+}
+.svg-content-responsive {
+	display: inline-block;
+	position: absolute;
+	top: 10px;
+	left: 0;
+}
+.hidden {
+	display:none;
+}
+.selects {
+	position:fixed;
+	right:20px;
+	top:40px;
+}
+
+.footer, .header {
+    color: rgba(128,128,128,.6);
+}

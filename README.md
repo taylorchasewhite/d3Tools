@@ -5,6 +5,11 @@
 Open `sperm/index.html` in a browser (internet access is needed for D3 v3).
 Use `sperm/index.html?mode=swimming` for the original non-flocking comparison.
 Deposit and Withdraw add/remove swimmers; the display scales to its container.
+The flocking demo includes live separation, alignment, and cohesion strength
+sliders. Zero disables a rule. Expand **Advanced controls** to adjust each
+neighbor radius, maximum speed, and steering force. **Reset defaults** restores
+all eight settings without restarting or changing the swimmer population.
+The non-flocking comparison hides these controls to preserve its baseline.
 
 The original code was located in [Taylor White's GitHub Gist](https://gist.github.com/taylorchasewhite/f5ede58351f8e7e5e3cd31cfc1ce2e7e),
 not in this repository. The visualization is based on
@@ -18,6 +23,8 @@ Recovered the demo with AI assistance, corrected separation/alignment/cohesion
 steering to update velocity from a consistent simulation frame, bounded speed,
 and aligned heads with actual motion. Fixed zero-speed tails, wall reflection,
 and population controls. The renderer retains D3 v3 and the swimming comparison.
+Added live parameter controls on the same date, with regression tests for
+rule toggles, neighbor radii, speed/force changes, and extreme settings.
 
 Run the focused regression tests with Node.js 18 or newer:
 

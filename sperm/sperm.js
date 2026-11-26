@@ -11,6 +11,49 @@
 	var width = 960, height = 500, nextId = 0;
 	var flocking = document.body.dataset.flocking !== "false" &&
 		new URLSearchParams(location.search).get("mode") !== "swimming";
+	var settings = Object.assign({}, Boids.defaults);
+	var controls = [
+		["separationWeight", "Separation strength", 0, 4, 0.1, "Avoid crowding"],
+		["alignmentWeight", "Alignment strength", 0, 4, 0.1, "Match nearby headings"],
+		["cohesionWeight", "Cohesion strength", 0, 4, 0.1, "Gather with neighbors"],
+		["separationRadius", "Separation radius", 0, 200, 5, "Simulation pixels"],
+		["alignmentRadius", "Alignment radius", 0, 200, 5, "Simulation pixels"],
+		["cohesionRadius", "Cohesion radius", 0, 200, 5, "Simulation pixels"],
+		["maxSpeed", "Maximum speed", 0.5, 6, 0.1, "Pixels per simulation step"],
+		["maxForce", "Steering force", 0.01, 0.3, 0.01, "Turning acceleration per rule"]
+	];
+	var controlInputs = [];
+	if (flocking) {
+		d3.select("#controls").property("hidden", false);
+		controls.forEach(function (control, index) {
+			var key = control[0];
+			var row = d3.select(index < 3 ? "#strengths" : "#advanced").append("div").attr("class", "control");
+			row.append("label").attr("for", key).text(control[1]);
+			var output = row.append("output").attr("for", key);
+			var input = row.append("input").attr("type", "range").attr("id", key)
+				.attr("min", control[2]).attr("max", control[3]).attr("step", control[4])
+				.attr("aria-describedby", key + "-help");
+			row.append("small").attr("id", key + "-help").text(control[5]);
+			function display() {
+				input.property("value", settings[key]);
+				output.text(settings[key]);
+			}
+			input.on("input", function () {
+				var value = this.valueAsNumber;
+				if (!Number.isFinite(value) || value < control[2] || value > control[3]) {
+					throw new RangeError("Invalid flocking setting: " + key);
+				}
+				settings[key] = value;
+				display();
+			});
+			controlInputs.push(display);
+			display();
+		});
+		d3.select("#btnReset").on("click", function () {
+			Object.assign(settings, Boids.defaults);
+			controlInputs.forEach(function (display) { display(); });
+		});
+	}
 	var flock = d3.range(100).map(function () {
 		return Boids.createBoid(nextId++, Math.random() * width,
 			Math.random() * height, Math.random() * Math.PI * 2);
@@ -59,7 +102,7 @@
 		accumulated += Math.min(elapsed - previous, interval * 5);
 		previous = elapsed;
 		while (accumulated >= interval) {
-			Boids.step(flock, width, height, flocking);
+			Boids.step(flock, width, height, flocking, settings);
 			accumulated -= interval;
 		}
 		render();

@@ -2,8 +2,16 @@
 (function (root) {
 	"use strict";
 
-	var maxSpeed = 2.5;
-	var maxForce = 0.06;
+	var defaults = Object.freeze({
+		separationWeight: 1.8,
+		alignmentWeight: 1,
+		cohesionWeight: 0.6,
+		separationRadius: 30,
+		alignmentRadius: 65,
+		cohesionRadius: 100,
+		maxSpeed: 2.5,
+		maxForce: 0.06
+	});
 
 	function limit(x, y, maximum) {
 		var length = Math.hypot(x, y);
@@ -11,12 +19,12 @@
 		return [x * scale, y * scale];
 	}
 
-	function steering(x, y, boid) {
+	function steering(x, y, boid, settings) {
 		var length = Math.hypot(x, y);
 		// Symmetric neighborhoods can leave a tiny floating-point residual.
 		if (length < 1e-10) return [0, 0];
-		return limit(x / length * maxSpeed - boid.vx,
-			y / length * maxSpeed - boid.vy, maxForce);
+		return limit(x / length * settings.maxSpeed - boid.vx,
+			y / length * settings.maxSpeed - boid.vy, settings.maxForce);
 	}
 
 	function createBoid(id, x, y, angle) {
@@ -29,7 +37,8 @@
 		};
 	}
 
-	function forces(boid, flock) {
+	function forces(boid, flock, settings) {
+		settings = settings || defaults;
 		var sx = 0, sy = 0, ax = 0, ay = 0, cx = 0, cy = 0;
 		var aligned = 0, cohesive = 0;
 		flock.forEach(function (other) {
@@ -37,7 +46,7 @@
 			var dx = other.path[0][0] - boid.path[0][0];
 			var dy = other.path[0][1] - boid.path[0][1];
 			var distance = Math.hypot(dx, dy);
-			if (distance < 30) {
+			if (distance < settings.separationRadius) {
 				if (distance === 0) {
 					// Coincident deposits still need an equal-and-opposite escape direction.
 					sx += boid.id < other.id ? -1 : 1;
@@ -46,21 +55,21 @@
 					sy -= dy / (distance * distance);
 				}
 			}
-			if (distance < 65) {
+			if (distance < settings.alignmentRadius) {
 				ax += other.vx;
 				ay += other.vy;
 				aligned++;
 			}
-			if (distance < 100) {
+			if (distance < settings.cohesionRadius) {
 				cx += dx;
 				cy += dy;
 				cohesive++;
 			}
 		});
 		return {
-			separation: steering(sx, sy, boid),
-			alignment: aligned ? steering(ax / aligned, ay / aligned, boid) : [0, 0],
-			cohesion: cohesive ? steering(cx / cohesive, cy / cohesive, boid) : [0, 0]
+			separation: steering(sx, sy, boid, settings),
+			alignment: aligned ? steering(ax / aligned, ay / aligned, boid, settings) : [0, 0],
+			cohesion: cohesive ? steering(cx / cohesive, cy / cohesive, boid, settings) : [0, 0]
 		};
 	}
 
@@ -86,15 +95,16 @@
 		}
 	}
 
-	function step(flock, width, height, flocking) {
+	function step(flock, width, height, flocking, settings) {
+		settings = settings || defaults;
 		// Every boid observes the same frame, not partially updated neighbors.
 		var velocities = flock.map(function (boid) {
-			if (!flocking) return limit(boid.vx, boid.vy, maxSpeed);
-			var f = forces(boid, flock);
+			if (!flocking) return limit(boid.vx, boid.vy, settings.maxSpeed);
+			var f = forces(boid, flock, settings);
 			return limit(
-				boid.vx + 1.8 * f.separation[0] + f.alignment[0] + 0.6 * f.cohesion[0],
-				boid.vy + 1.8 * f.separation[1] + f.alignment[1] + 0.6 * f.cohesion[1],
-				maxSpeed);
+				boid.vx + settings.separationWeight * f.separation[0] + settings.alignmentWeight * f.alignment[0] + settings.cohesionWeight * f.cohesion[0],
+				boid.vy + settings.separationWeight * f.separation[1] + settings.alignmentWeight * f.alignment[1] + settings.cohesionWeight * f.cohesion[1],
+				settings.maxSpeed);
 		});
 		flock.forEach(function (boid, i) {
 			boid.vx = velocities[i][0];
@@ -109,7 +119,7 @@
 		});
 	}
 
-	var api = { createBoid: createBoid, forces: forces, step: step };
+	var api = { defaults: defaults, createBoid: createBoid, forces: forces, step: step };
 	if (typeof module !== "undefined" && module.exports) module.exports = api;
 	else root.Boids = api;
 }(typeof globalThis !== "undefined" ? globalThis : this));

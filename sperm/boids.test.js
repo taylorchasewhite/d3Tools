@@ -1,6 +1,6 @@
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
-const { createBoid, forces, step } = require("./boids.js");
+const { defaults, createBoid, forces, step } = require("./boids.js");
 
 test("separation repels close neighbors, including coincident deposits", () => {
 	const a = createBoid(0, 100, 100, Math.PI / 2);
@@ -76,4 +76,58 @@ test("wall reflection, zero speed, empty flocks and unflocked swimming stay vali
 	step([a, neighbor], 960, 500, false);
 	assert.equal(a.vx, 2);
 	assert.equal(a.path[0][0], 202);
+});
+
+test("live weights disable each rule independently and can re-enable it", () => {
+	for (const rule of ["separation", "alignment", "cohesion"]) {
+		const settings = { ...defaults, separationWeight: 0, alignmentWeight: 0, cohesionWeight: 0 };
+		const flock = [createBoid(0, 500, 500, 0), createBoid(1, 510, 500, Math.PI / 2)];
+		step(flock, 960, 500, true, settings);
+		assert.equal(flock[0].vx, 2);
+		assert.equal(flock[0].vy, 0);
+		const f = forces(flock[0], flock, settings)[rule];
+		assert.ok(Math.hypot(...f) > 0);
+		settings[rule + "Weight"] = 2;
+		step(flock, 960, 500, true, settings);
+		assert.ok(Math.abs(flock[0].vx - (2 + 2 * f[0])) < 1e-12);
+		assert.ok(Math.abs(flock[0].vy - 2 * f[1]) < 1e-12);
+	}
+});
+
+test("live radii change neighbor membership and speed/force settings take effect", () => {
+	const flock = [createBoid(0, 500, 500, 0), createBoid(1, 550, 500, Math.PI / 2)];
+	for (const rule of ["separation", "alignment", "cohesion"]) {
+		const settings = { ...defaults, [rule + "Radius"]: 0 };
+		assert.deepEqual(forces(flock[0], flock, settings)[rule], [0, 0]);
+		settings[rule + "Radius"] = 60;
+		assert.ok(Math.hypot(...forces(flock[0], flock, settings)[rule]) > 0);
+	}
+	const settings = { ...defaults, maxForce: 0.01 };
+	assert.ok(Math.abs(Math.hypot(...forces(flock[0], flock, settings).alignment) - 0.01) < 1e-12);
+	settings.maxForce = 0.3;
+	assert.ok(Math.abs(Math.hypot(...forces(flock[0], flock, settings).alignment) - 0.3) < 1e-12);
+	settings.maxSpeed = 0.5;
+	step(flock, 960, 500, true, settings);
+	assert.ok(flock.every(b => Math.hypot(b.vx, b.vy) <= 0.5 + 1e-12));
+	settings.maxSpeed = 6;
+	step(flock, 960, 500, true, settings);
+	assert.ok(flock.some(b => Math.hypot(b.vx, b.vy) > 0.5));
+});
+
+test("extreme UI settings remain finite and bounded over sustained simulation", () => {
+	for (const value of [0, 4]) {
+		const settings = { ...defaults, separationWeight: value, alignmentWeight: value,
+			cohesionWeight: value, separationRadius: 200, alignmentRadius: 200,
+			cohesionRadius: 200, maxSpeed: 6, maxForce: 0.3 };
+		const flock = Array.from({ length: 20 }, (_, i) => createBoid(i, 480, 250, i));
+		for (let t = 0; t < 600; t++) {
+			step(flock, 960, 500, true, settings);
+			for (const b of flock) {
+				assert.ok(b.path.flat().every(Number.isFinite));
+				assert.ok(Math.hypot(b.vx, b.vy) <= 6 + 1e-12);
+				assert.ok(b.path[0][0] >= 0 && b.path[0][0] <= 960);
+				assert.ok(b.path[0][1] >= 0 && b.path[0][1] <= 500);
+			}
+		}
+	}
 });

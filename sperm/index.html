@@ -15,22 +15,27 @@
 		#btnAdd { background: #187b43; }
 		#btnRemove { background: #b82e22; }
 		button:disabled { opacity: 0.5; cursor: default; }
-		#btnReset { background: #245c98; font-size: 14px; }
-		#controls { padding: 8px; border: 1px solid #555; border-radius: 4px; }
-		#strengths, #advanced { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
-		.control { display: grid; grid-template-columns: 1fr auto; gap: 4px; }
-		.control input, .control small { grid-column: 1 / -1; width: 100%; margin: 0; }
-		.control small { color: #bbb; }
-		output { font-variant-numeric: tabular-nums; }
-		summary { cursor: pointer; margin: 10px 0; }
-		#controls p { font-size: 13px; margin: 8px 0; }
+		#btnReset { background: #245c98; font-size: 12px; padding: 4px 8px; }
+		#controls { padding: 0 8px; border: 1px solid #555; border-radius: 4px; font-size: 12px; }
+		#strengths, #advanced { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2px 16px; }
+		.control { display: grid; grid-template-columns: 125px minmax(0, 1fr) 3.5em; align-items: center; gap: 6px; min-height: 26px; }
+		.control input { grid-column: 2; grid-row: 1; width: 100%; min-width: 0; margin: 0; }
+		.control small { display: none; }
+		output { grid-column: 3; grid-row: 1; text-align: right; font-variant-numeric: tabular-nums; }
+		summary { cursor: pointer; padding: 7px 0; }
+		#controls p { margin: 4px 0; color: #bbb; }
+		@media (max-width: 320px) {
+			#strengths, #advanced { grid-template-columns: minmax(0, 1fr); }
+			.control { grid-template-columns: 110px minmax(0, 1fr) 3em; gap: 4px; }
+		}
 	</style>
 </head>
 <body>
 	<button id="btnAdd" type="button" title="Add a swimmer">Deposit</button>
 	<button id="btnRemove" type="button" title="Remove a swimmer">Withdraw</button>
 	<span id="population" role="status" aria-live="polite"></span>
-	<section id="controls" hidden aria-label="Live flocking settings">
+	<details id="controls" hidden aria-label="Live flocking settings">
+		<summary>Flocking controls</summary>
 		<div id="strengths"></div>
 		<p>Changes apply live. Set a strength to zero to disable that rule.</p>
 		<details>
@@ -38,7 +43,7 @@
 			<div id="advanced"></div>
 		</details>
 		<button id="btnReset" type="button">Reset defaults</button>
-	</section>
+	</details>
 	<div id="simulation"></div>
 	<script src="https://d3js.org/d3.v3.min.js"></script>
 	<script src="boids.js"></script>

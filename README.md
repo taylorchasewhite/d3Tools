@@ -6,7 +6,9 @@ Open `sperm/index.html` in a browser (internet access is needed for D3 v3).
 Use `sperm/index.html?mode=swimming` for the original non-flocking comparison.
 Deposit and Withdraw add/remove swimmers; the display scales to its container.
 The flocking demo includes live separation, alignment, and cohesion strength
-sliders. Zero disables a rule. Expand **Advanced controls** to adjust each
+sliders tucked into a collapsed **Flocking controls** panel to leave room for
+the simulation. Open it for compact inline sliders; zero disables a rule.
+Expand **Advanced controls** to adjust each
 neighbor radius, maximum speed, and steering force. **Reset defaults** restores
 all eight settings without restarting or changing the swimmer population.
 The non-flocking comparison hides these controls to preserve its baseline.
